@@ -4,7 +4,9 @@ import bodyContentValidator from '../middlewares/BodyContentValidator'
 
 const UserController = new userController()
 const app = express.Router()
+app.use(bodyContentValidator)
 
-app.post('/signup', bodyContentValidator, UserController.SignUp)
+app.post('/signup', UserController.SignUp)
+app.post('/login', UserController.Login)
 
 export default app

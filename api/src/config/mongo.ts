@@ -1,6 +1,7 @@
+import env from './env'
 import mongoose from 'mongoose'
 
-mongoose.connect('mongodb://localhost:27017/stripe-subscription-integration', {
+mongoose.connect(env.databaseUrl == undefined ? '' : env.databaseUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
