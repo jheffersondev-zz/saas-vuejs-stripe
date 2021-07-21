@@ -1,7 +1,7 @@
 import express, { Request, Response } from 'express'
 const app = express.Router()
 
-app.get('/', (req: Request, res: Response) => {
+app.post('/signup', (req: Request, res: Response) => {
   res.send('hello world')
 })
 
