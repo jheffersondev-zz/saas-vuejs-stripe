@@ -1,3 +1,4 @@
 import app from './app'
+const PORT = process.env.PORT
 
-app.listen(process.env.PORT, () => console.log('server running'))
+app.listen(PORT, () => console.log(`server running at ${PORT}`))
