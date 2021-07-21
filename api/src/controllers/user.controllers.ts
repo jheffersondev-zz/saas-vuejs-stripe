@@ -1,5 +1,8 @@
 import { Request, Response } from 'express'
+import userServices from '../services/user.services'
 import v from 'validator'
+
+const UserServices = new userServices()
 
 export default class UserController {
   async SignUp(req: Request, res: Response) {
@@ -21,6 +24,7 @@ export default class UserController {
         .json({ message: 'invalid content from password param' })
     }
 
-    res.status(200).send('testing')
+    let saveUser = await UserServices.SignUp(name, email, password)
+    res.status(200).json(saveUser)
   }
 }
