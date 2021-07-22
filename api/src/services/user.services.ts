@@ -1,5 +1,7 @@
 import userModel from '../models/user.model'
 import bcrypt from 'bcrypt'
+import jwt from 'jsonwebtoken'
+import env from '../config/env'
 
 export default class UserServices {
   async SignUp(name: string, email: string, password: string) {
@@ -38,7 +40,15 @@ export default class UserServices {
         return { success: false, error: 'invalid/incorrect auth params' }
       }
 
-      return { success: true, body: 'authenticated' }
+      let authJwt = await jwt.sign(
+        {
+          exp: Math.floor(Date.now() / 1000) + 60 * 30,
+          id: find.id,
+        },
+        env.jwtSecret === undefined ? '' : env.jwtSecret
+      )
+
+      return { success: true, body: authJwt }
     } catch (error) {
       return { success: false, error: error }
     }
