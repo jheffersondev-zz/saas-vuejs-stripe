@@ -4,14 +4,14 @@ interface User {
   name: string
   email: string
   password: string
-  customerDetails: object
+  customerDetails: any
 }
 
 const schema = new Schema<User>({
   name: { type: String, required: true },
   email: { type: String, required: true },
   password: { type: String, required: true },
-  customerDetails: Object,
+  customerDetails: { type: Object, required: true },
   address: Object,
 })
 

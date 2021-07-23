@@ -20,6 +20,10 @@ export default class UserServices {
         name,
         email,
         password: cryptedPass,
+        customerDetails: {
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+        },
       }).save()
 
       return { success: true, body: 'user created' }
