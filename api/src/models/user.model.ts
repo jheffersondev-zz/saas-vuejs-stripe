@@ -12,6 +12,7 @@ const schema = new Schema<User>({
   email: { type: String, required: true },
   password: { type: String, required: true },
   customerDetails: Object,
+  address: Object,
 })
 
 const userModel = model<User>('User', schema)
