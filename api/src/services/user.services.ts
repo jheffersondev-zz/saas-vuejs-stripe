@@ -1,22 +1,22 @@
-import userModel from '../models/user.model'
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import env from '../config/env'
+import UserModel from '../models/user.model'
 
 export default class UserServices {
   async SignUp(name: string, email: string, password: string) {
     try {
-      //verify email existence
-      let find = await userModel.find({ email }).exec()
+      // verify email existence
+      const find = await UserModel.find({ email }).exec()
       if (find.length >= 1) {
         return { success: false, error: 'email already exists' }
       }
 
       // hash password
-      let salt = await bcrypt.genSaltSync(10)
-      let cryptedPass = await bcrypt.hashSync(password, salt)
+      const salt = await bcrypt.genSaltSync(10)
+      const cryptedPass = await bcrypt.hashSync(password, salt)
 
-      await new userModel({
+      await new UserModel({
         name,
         email,
         password: cryptedPass,
@@ -28,23 +28,23 @@ export default class UserServices {
 
       return { success: true, body: 'user created' }
     } catch (error) {
-      return { success: false, error: error }
+      return { success: false, error }
     }
   }
 
   async Login(email: string, password: string) {
     try {
-      const find = await userModel.findOne({ email }).exec()
+      const find = await UserModel.findOne({ email }).exec()
       if (find === null) {
         return { success: false, error: 'invalid/incorrect auth params' }
       }
 
-      let passwordMatch = await bcrypt.compare(password, find.password)
+      const passwordMatch = await bcrypt.compare(password, find.password)
       if (passwordMatch === false) {
         return { success: false, error: 'invalid/incorrect auth params' }
       }
 
-      let authJwt = await jwt.sign(
+      const authJwt = await jwt.sign(
         {
           exp: Math.floor(Date.now() / 1000) + 60 * 30,
           id: find.id,
@@ -54,7 +54,7 @@ export default class UserServices {
 
       return { success: true, body: authJwt }
     } catch (error) {
-      return { success: false, error: error }
+      return { success: false, error }
     }
   }
 }

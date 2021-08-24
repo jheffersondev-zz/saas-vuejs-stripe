@@ -1,11 +1,10 @@
 import express from 'express'
-import paymentController from '../controllers/payment.controllers'
-import BodyContentValidator from '../middlewares/BodyContentValidator'
+import PaymentController from '../controllers/payment.controllers'
 import LoginAuthorization from '../middlewares/LoginAuthorization'
 
 const app = express.Router()
-const PaymentController = new paymentController()
+const paymentController = new PaymentController()
 
-app.post('/subscription', LoginAuthorization, PaymentController.Subscription)
+app.post('/subscription', LoginAuthorization, paymentController.Subscription)
 
 export default app

@@ -1,6 +1,6 @@
-import env from '../config/env'
 import Stripe from 'stripe'
 import jwt from 'jsonwebtoken'
+import env from '../config/env'
 import userModel from '../models/user.model'
 
 const stripe = new Stripe(
@@ -23,8 +23,8 @@ export default class PaymentServices {
       if (user.customerDetails.stripeCustomerId !== null) {
         stripeCustomerId = user.customerDetails.stripeCustomerId
 
-        //check on stripe if the current customer is valid
-        let customer = await stripe.customers.retrieve(stripeCustomerId)
+        // check on stripe if the current customer is valid
+        const customer = await stripe.customers.retrieve(stripeCustomerId)
 
         if (customer.deleted !== undefined || customer.deleted !== null) {
           createNewCustomer = false
@@ -32,7 +32,7 @@ export default class PaymentServices {
       }
 
       if (createNewCustomer === true) {
-        let createCustomer = await stripe.customers.create({
+        const createCustomer = await stripe.customers.create({
           name: user.name,
           email: user.email,
         })
@@ -48,31 +48,31 @@ export default class PaymentServices {
 
       return { success: false, body: stripeCustomerId }
     } catch (error) {
-      return { success: false, error: error }
+      return { success: false, error }
     }
   }
 
   async CreateSubscription(token: string) {
     try {
-      let decodedToken = await (<any>jwt.decode(token))
+      const decodedToken = await (<any>jwt.decode(token))
 
       const user = await userModel.find({
         _id: decodedToken.id === null ? '' : decodedToken.id,
       })
 
-      if (user.length == 0) {
+      if (user.length === 0) {
         return {
           success: false,
           error: 'unexpected error, please, make login again',
         }
       }
 
-      let fetchCustomer = await this.Customer(user[0])
+      const fetchCustomer = await this.Customer(user[0])
       if (fetchCustomer.success === false) {
         return fetchCustomer
       }
     } catch (error) {
-      return { success: false, error: error }
+      return { success: false, error }
     }
   }
 }

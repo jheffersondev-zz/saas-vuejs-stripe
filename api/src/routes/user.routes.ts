@@ -1,11 +1,11 @@
-import express, { Request, Response } from 'express'
-import userController from '../controllers/user.controllers'
+import express from 'express'
+import UserController from '../controllers/user.controllers'
 import bodyContentValidator from '../middlewares/BodyContentValidator'
 
-const UserController = new userController()
+const userController = new UserController()
 const app = express.Router()
 
-app.post('/signup', bodyContentValidator, UserController.SignUp)
-app.post('/login', bodyContentValidator, UserController.Login)
+app.post('/signup', bodyContentValidator, userController.SignUp)
+app.post('/login', bodyContentValidator, userController.Login)
 
 export default app

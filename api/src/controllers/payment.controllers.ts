@@ -1,14 +1,14 @@
 import { Request, Response } from 'express'
-import paymentServices from '../services/payment.services'
+import PaymentServices from '../services/payment.services'
 
-const PaymentServices = new paymentServices()
+const paymentServices = new PaymentServices()
 
 export default class PaymentController {
   async Subscription(req: Request, res: Response) {
-    let authHeader = req.headers.authorization
-    let token = authHeader?.split('Bearer ')[1]
+    const authHeader = req.headers.authorization
+    const token = authHeader?.split('Bearer ')[1]
 
-    let subscribe = await PaymentServices.CreateSubscription(
+    const subscribe = await paymentServices.CreateSubscription(
       token === undefined ? '' : token
     )
 
