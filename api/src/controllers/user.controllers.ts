@@ -1,18 +1,34 @@
 import { Request, Response } from 'express'
-import userServices from '../services/user.services'
 import v from 'validator'
+import UserServices from '../services/user.services'
 
-const UserServices = new userServices()
+const userServices = new UserServices()
 
 export default class UserController {
   async SignUp(req: Request, res: Response) {
     try {
-      let { name, email, password } = req.body
+      const { name, gender, birthDate, email, password } = req.body
 
       if (name === undefined || name.length < 1) {
         return res
           .status(400)
           .json({ message: 'invalid content from name param' })
+      }
+
+      const validGenders = ['male', 'female', 'other']
+      if (
+        gender === undefined ||
+        gender.length < 1 ||
+        validGenders.indexOf(gender) === -1
+      ) {
+        return res
+          .status(400)
+          .json({ message: 'invalid content from gender param' })
+      }
+      if (birthDate === undefined || birthDate.length < 1) {
+        return res
+          .status(400)
+          .json({ message: 'invalid content from birthDate param' })
       }
       if (email === undefined || v.isEmail(email) === false) {
         return res
@@ -25,8 +41,14 @@ export default class UserController {
           .json({ message: 'invalid content from password param' })
       }
 
-      let saveUser = await UserServices.SignUp(name, email, password)
-      res.status(200).json(saveUser)
+      const saveUser = await userServices.SignUp({
+        name,
+        gender,
+        birthDate,
+        email,
+        password,
+      })
+      return res.status(200).json(saveUser)
     } catch (error) {
       return res.status(500).json({ message: 'unexpected server error' })
     }
@@ -34,7 +56,7 @@ export default class UserController {
 
   async Login(req: Request, res: Response) {
     try {
-      let { email, password } = req.body
+      const { email, password } = req.body
 
       if (email === undefined || v.isEmail(email) === false) {
         return res
@@ -47,7 +69,7 @@ export default class UserController {
           .json({ message: 'invalid content from email param' })
       }
 
-      let authUser = await UserServices.Login(email, password)
+      const authUser = await userServices.Login(email, password)
       return res.json(authUser)
     } catch (error) {
       return res.status(500).json({ message: 'unexpected server error' })

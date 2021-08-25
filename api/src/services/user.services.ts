@@ -3,24 +3,34 @@ import jwt from 'jsonwebtoken'
 import env from '../config/env'
 import UserModel from '../models/user.model'
 
+interface IUser {
+  name: string
+  gender: string
+  birthDate: string
+  email: string
+  password: string
+}
+
 export default class UserServices {
-  async SignUp(name: string, email: string, password: string) {
+  async SignUp(user: IUser) {
     try {
       // verify email existence
-      const find = await UserModel.find({ email }).exec()
+      const find = await UserModel.find({ email: user.email }).exec()
       if (find.length >= 1) {
         return { success: false, error: 'email already exists' }
       }
 
       // hash password
       const salt = await bcrypt.genSaltSync(10)
-      const cryptedPass = await bcrypt.hashSync(password, salt)
+      const cryptedPass = await bcrypt.hashSync(user.password, salt)
 
       await new UserModel({
-        name,
-        email,
+        name: user.name,
+        gender: user.gender,
+        birthDate: user.birthDate,
+        email: user.email,
         password: cryptedPass,
-        customerDetails: {
+        stripe: {
           stripeCustomerId: null,
           stripeSubscriptionId: null,
         },
