@@ -1,27 +1,34 @@
-import Stripe from 'stripe'
 import jwt from 'jsonwebtoken'
-import env from '../config/env'
 import userModel from '../models/user.model'
-
-const stripe = new Stripe(
-  env.stripe.publicKey === undefined ? '' : env.stripe.publicKey,
-  {
-    apiVersion: '2020-08-27',
-  }
-)
+import stripe from '../config/stripe'
 
 export default class PaymentServices {
-  /*
-    Retrieve or create a customer if not exists or if not valid on stripe
-  */
-  async Customer(user: any) {
+  // create a customer and returns customerId
+  async CustomerCreate(user: any) {
+    try {
+      let stripeCustomerId = ''
+      const createCustomer = await stripe.customers.create({
+        name: user.name,
+        email: user.email,
+      })
+
+      stripeCustomerId = createCustomer.id
+
+      return { success: true, customerId: stripeCustomerId }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  // retrieve or create and update on DB a customer if not exists or if not valid on stripe
+  async CustomerFindOrCreate(user: any) {
     try {
       let stripeCustomerId: string = ''
-      let createNewCustomer = true
+      let createNewCustomer: boolean = true
 
       // verify if user have a customer id
-      if (user.customerDetails.stripeCustomerId !== null) {
-        stripeCustomerId = user.customerDetails.stripeCustomerId
+      if (user.stripe.stripeCustomerId !== null) {
+        stripeCustomerId = user.stripe.stripeCustomerId
 
         // check on stripe if the current customer is valid
         const customer = await stripe.customers.retrieve(stripeCustomerId)
@@ -36,29 +43,34 @@ export default class PaymentServices {
           name: user.name,
           email: user.email,
         })
+
+        stripeCustomerId = createCustomer.id
+
+        // update user with a created customerId on database
         await userModel.updateOne(
           { _id: user.id },
           {
-            customerDetails: {
+            stripe: {
               stripeCustomerId: createCustomer.id,
             },
           }
         )
       }
 
-      return { success: false, body: stripeCustomerId }
-    } catch (error) {
-      return { success: false, error }
+      return { success: true, customerId: stripeCustomerId }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   }
 
-  async CreateSubscription(token: string) {
+  async CreateSubscription(
+    token: string,
+    paymentMethodId: string,
+    priceId: string
+  ) {
     try {
       const decodedToken = await (<any>jwt.decode(token))
-
-      const user = await userModel.find({
-        _id: decodedToken.id === null ? '' : decodedToken.id,
-      })
+      const user = decodedToken
 
       if (user.length === 0) {
         return {
@@ -67,12 +79,49 @@ export default class PaymentServices {
         }
       }
 
-      const fetchCustomer = await this.Customer(user[0])
-      if (fetchCustomer.success === false) {
+      // tries to get or create a customer if does exist
+      const fetchCustomer = await this.CustomerFindOrCreate(user)
+      if (
+        fetchCustomer.success === false ||
+        fetchCustomer.customerId === undefined
+      ) {
         return fetchCustomer
       }
-    } catch (error) {
-      return { success: false, error }
+
+      // attaches the new payment method to the user
+      await stripe.paymentMethods.attach(paymentMethodId, {
+        customer: fetchCustomer.customerId,
+      })
+
+      // define the current payment method as default
+      await stripe.customers.update(user.stripe.stripeCustomerId, {
+        invoice_settings: {
+          default_payment_method: paymentMethodId,
+        },
+      })
+
+      // creates a subscription
+      const subscription = await stripe.subscriptions.create({
+        customer: fetchCustomer.customerId,
+        items: [{ price: priceId }],
+        expand: ['latest_invoice.payment_intent'],
+      })
+
+      await userModel.updateOne(
+        { _id: user.id },
+        {
+          stripe: {
+            stripeSubscriptionId: subscription.id,
+          },
+        }
+      )
+
+      return {
+        success: true,
+        subscription,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   }
 }

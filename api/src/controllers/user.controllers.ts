@@ -7,7 +7,7 @@ const userServices = new UserServices()
 export default class UserController {
   async SignUp(req: Request, res: Response) {
     try {
-      const { name, gender, birthDate, email, password } = req.body
+      const { name, email, password } = req.body
 
       if (name === undefined || name.length < 1) {
         return res
@@ -15,21 +15,6 @@ export default class UserController {
           .json({ message: 'invalid content from name param' })
       }
 
-      const validGenders = ['male', 'female', 'other']
-      if (
-        gender === undefined ||
-        gender.length < 1 ||
-        validGenders.indexOf(gender) === -1
-      ) {
-        return res
-          .status(400)
-          .json({ message: 'invalid content from gender param' })
-      }
-      if (birthDate === undefined || birthDate.length < 1) {
-        return res
-          .status(400)
-          .json({ message: 'invalid content from birthDate param' })
-      }
       if (email === undefined || v.isEmail(email) === false) {
         return res
           .status(400)
@@ -43,8 +28,6 @@ export default class UserController {
 
       const saveUser = await userServices.SignUp({
         name,
-        gender,
-        birthDate,
         email,
         password,
       })

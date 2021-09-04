@@ -2,11 +2,12 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import env from '../config/env'
 import UserModel from '../models/user.model'
+import PaymentServices from './payment.services'
+
+const paymentServices = new PaymentServices()
 
 interface IUser {
   name: string
-  gender: string
-  birthDate: string
   email: string
   password: string
 }
@@ -17,28 +18,66 @@ export default class UserServices {
       // verify email existence
       const find = await UserModel.find({ email: user.email }).exec()
       if (find.length >= 1) {
-        return { success: false, error: 'email already exists' }
+        return {
+          success: false,
+          error: 'This email is already being used',
+        }
       }
 
       // hash password
       const salt = await bcrypt.genSaltSync(10)
       const cryptedPass = await bcrypt.hashSync(user.password, salt)
 
-      await new UserModel({
+      const createCustomer = await paymentServices.CustomerCreate({
         name: user.name,
-        gender: user.gender,
-        birthDate: user.birthDate,
+        email: user.email,
+      })
+
+      if (createCustomer.success === false) {
+        return createCustomer
+      }
+
+      const newUser = await new UserModel({
+        name: user.name,
         email: user.email,
         password: cryptedPass,
         stripe: {
-          stripeCustomerId: null,
+          stripeCustomerId: createCustomer.customerId,
           stripeSubscriptionId: null,
         },
       }).save()
 
-      return { success: true, body: 'user created' }
-    } catch (error) {
-      return { success: false, error }
+      const authJwt = await jwt.sign(
+        {
+          exp: Math.floor(Date.now() / 1000) + 36000,
+          id: newUser.id,
+          name: user.name,
+          email: user.email,
+          stripe: {
+            stripeCustomerId: createCustomer.customerId,
+            stripeSubscriptionId: null,
+          },
+        },
+        env.jwtSecret === undefined ? '' : env.jwtSecret
+      )
+
+      return {
+        success: true,
+        body: 'Account has sucessfully created',
+        shortBody: 'user_created',
+        user: {
+          id: newUser.id,
+          name: user.name,
+          email: user.email,
+          stripe: {
+            stripeCustomerId: createCustomer.customerId,
+            stripeSubscriptionId: null,
+          },
+        },
+        token: authJwt,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   }
 
@@ -46,25 +85,39 @@ export default class UserServices {
     try {
       const find = await UserModel.findOne({ email }).exec()
       if (find === null) {
-        return { success: false, error: 'invalid/incorrect auth params' }
+        return { success: false, error: 'Unrecognized email or password' }
       }
 
       const passwordMatch = await bcrypt.compare(password, find.password)
       if (passwordMatch === false) {
-        return { success: false, error: 'invalid/incorrect auth params' }
+        return { success: false, error: 'Unrecognized email or password' }
       }
 
       const authJwt = await jwt.sign(
         {
-          exp: Math.floor(Date.now() / 1000) + 60 * 30,
+          exp: Math.floor(Date.now() / 1000) + 36000,
           id: find.id,
+          name: find.name,
+          email: find.email,
+          stripe: find.stripe,
         },
         env.jwtSecret === undefined ? '' : env.jwtSecret
       )
 
-      return { success: true, body: authJwt }
-    } catch (error) {
-      return { success: false, error }
+      return {
+        success: true,
+        body: 'Successfully logged in',
+        shortBody: 'user_authenticated',
+        user: {
+          _id: find.id,
+          name: find.name,
+          email: find.email,
+          stripe: find.stripe,
+        },
+        token: authJwt,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
     }
   }
 }
