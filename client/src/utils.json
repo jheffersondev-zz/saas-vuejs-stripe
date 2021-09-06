@@ -1,0 +1,12 @@
+{
+  "API_URL": "http://localhost:3000",
+  "STRIPE_PUBLIC_KEY": "pk_test_51IS6skGywnxGFLOb7c4ddZRBzuMWr3bxouJdumrRMWcgt0KUoyuZd1GNbnz7RuFZcUkia08dxJOpZgNS9FWtJeRu00Wl3bNZmr",
+  "DEFAULT_PLAN_OBJECT": {
+    "id": "price_1JPf1sGywnxGFLObvjVe3rja",
+    "image": "http://cdn1.harryanddavid.com/wcsstore/HarryAndDavid/images/feed/std/16_24448_30e_01e_400.jpg",
+    "name": "Premium",
+    "price": 45.00,
+    "recurrencyDate": "Monthly",
+    "benefits": ["benefit #1", "benefit #2"]
+  }
+}

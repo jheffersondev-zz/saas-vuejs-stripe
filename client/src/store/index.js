@@ -1,9 +1,15 @@
 import { createStore } from 'vuex';
-import Auth from './modules/auth'
+import createPersistentState from 'vuex-persistedstate';
+import Auth from './modules/auth';
+import Checkout from './modules/checkout';
 
 export default createStore({
   modules: {
-    Auth
-  }
+    Auth,
+    Checkout
+  },
+  plugins: [
+    createPersistentState()
+  ]
 })
 

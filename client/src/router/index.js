@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 
 // pages
 import Home from '../views/Home.vue'
-import AutoCheckoutPlans from '../views/AutoCheckoutPlans.vue'
+import Checkout from '../views/Checkout.vue'
 import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 
@@ -13,11 +13,6 @@ const routes = [
     component: Home
   },
   {
-    path: "/auto-checkout-plans",
-    name: 'AutoCheckout',
-    component: AutoCheckoutPlans
-  }, 
-  {
     path: '/login',
     name: 'Login',
     component: Login
@@ -26,6 +21,11 @@ const routes = [
     path: '/signup',
     name: 'Signup',
     component: Signup
+  },
+  {
+    path: '/checkout',
+    name: 'Checkout',
+    component: Checkout
   }
 ]
 

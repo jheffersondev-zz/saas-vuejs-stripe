@@ -28,14 +28,16 @@
               :wrapper-col="wrapperCol"
             >
 
-              <a-alert
-                class="alert"
-                type="error"
-                :message="error"
-                banner
-                closable
-                v-if="error"
-              />
+              <transition name="fade">
+                <a-alert
+                  v-if="error"
+                  class="alert"
+                  type="error"
+                  :message="error"
+                  banner
+                  closable
+                />
+              </transition>
 
               <a-form-item
                 ref="name"
@@ -235,8 +237,11 @@ export default {
             .then((res) => {
               if (res.data.success === true) {
                 let token = res.data.token
+                let user = res.data.user
+
                 this.$store.dispatch('SetUserToken', token.toString())
-                this.$router.push('/profile')
+                this.$store.dispatch('SetUserDetails', user)
+                this.$router.push('/checkout')
               } else {
                 this.error = res.data.error
               }
@@ -308,6 +313,14 @@ export default {
 
 <style scoped>
 @import url('../assets/css/styles.css');
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 
 .content {
   margin: 0 auto;

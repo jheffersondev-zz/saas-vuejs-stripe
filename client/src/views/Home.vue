@@ -58,6 +58,7 @@
                 <a-button
                   type="primary"
                   class="btn-choose"
+                  @click="setChosenPlan(plan)"
                 >
                   Choose
                 </a-button>
@@ -81,33 +82,50 @@ export default {
     return {
       plans: [
         {
+          id: 'price_1JPf1sGywnxGFLOb48TWkHJL',
           image:
             'https://images.squarespace-cdn.com/content/v1/55a057e8e4b0a8ce00fe78f6/1605826162900-RLNQVK2ZGLZUD93FG48S/DSC09261-2.jpg?format=1000w',
           name: 'Starter',
-          price: 14.35,
+          price: 25.0,
           recurrencyDate: 'Monthly',
           benefits: ['benefit #1', 'benefit #2'],
         },
         {
+          id: 'price_1JPf1sGywnxGFLObCsUy55tY',
           image:
             'https://cdn1.harryanddavid.com/wcsstore/HarryAndDavid/images/catalog/20_32086_30W_01ex.jpg',
           name: 'Medium',
-          price: 18.35,
+          price: 35.0,
           recurrencyDate: 'Monthly',
           benefits: ['benefit #1', 'benefit #2'],
         },
         {
+          id: 'price_1JPf1sGywnxGFLObvjVe3rja',
           image:
             'http://cdn1.harryanddavid.com/wcsstore/HarryAndDavid/images/feed/std/16_24448_30e_01e_400.jpg',
           name: 'Premium',
-          price: 25.35,
+          price: 45.0,
           recurrencyDate: 'Monthly',
           benefits: ['benefit #1', 'benefit #2'],
         },
       ],
     }
   },
+  methods: {
+    setChosenPlan(plan) {
+      this.$store.dispatch('SetChosenPlan', plan)
+      const userToken = localStorage.getItem('userToken')
+      const user = this.$store.getters.$GetUser
 
+      if (userToken == null || userToken == undefined) {
+        this.$router.push('/signup')
+      } else if (user.id != undefined || user.stripe != undefined) {
+        this.$router.push('/checkout')
+      } else {
+        this.$router.push('/login')
+      }
+    },
+  },
   components: {
     Navbar,
     CheckCircleOutlined,
