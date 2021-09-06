@@ -109,7 +109,7 @@ export default class UserServices {
         body: 'Successfully logged in',
         shortBody: 'user_authenticated',
         user: {
-          _id: find.id,
+          id: find.id,
           name: find.name,
           email: find.email,
           stripe: find.stripe,

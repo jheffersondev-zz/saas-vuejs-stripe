@@ -32,9 +32,10 @@ export default class PaymentServices {
 
         // check on stripe if the current customer is valid
         const customer = await stripe.customers.retrieve(stripeCustomerId)
-
-        if (customer.deleted !== undefined || customer.deleted !== null) {
-          createNewCustomer = false
+        if (customer.deleted === true || customer.deleted !== undefined) {
+          createNewCustomer = true
+        } else {
+          return { success: true, customerId: stripeCustomerId }
         }
       }
 
@@ -52,6 +53,7 @@ export default class PaymentServices {
           {
             stripe: {
               stripeCustomerId: createCustomer.id,
+              stripeSubscriptionId: user.stripeSubscriptionId,
             },
           }
         )
@@ -69,13 +71,27 @@ export default class PaymentServices {
     priceId: string
   ) {
     try {
-      const decodedToken = await (<any>jwt.decode(token))
-      const user = decodedToken
+      const decoded = await (<any>jwt.decode(token))
+      const findUser: any = await userModel.findOne({ _id: decoded.id }).exec()
 
-      if (user.length === 0) {
+      if (findUser.length === 0) {
         return {
           success: false,
           error: 'unexpected error, please, make login again',
+        }
+      }
+
+      const user = findUser
+
+      // user only can have one active subscription
+      if (
+        user.stripe.stripeSubscriptionId != null ||
+        // eslint-disable-next-line eqeqeq
+        user.stripe.stripeSubscriptionId != undefined
+      ) {
+        return {
+          success: false,
+          error: 'You already have a active subscription',
         }
       }
 
@@ -112,6 +128,7 @@ export default class PaymentServices {
         {
           stripe: {
             stripeSubscriptionId: subscription.id,
+            stripeCustomerId: fetchCustomer.customerId,
           },
         }
       )
