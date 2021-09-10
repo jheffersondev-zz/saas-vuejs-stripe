@@ -49,6 +49,7 @@
               <a-input
                 class="input"
                 v-model:value="formState.address"
+                type='number'
               />
             </a-form-item>
 
@@ -115,8 +116,8 @@
 <script>
 import axios from 'axios'
 import { LockOutlined } from '@ant-design/icons-vue'
-import Navbar from '../components/Navbar.vue'
-import { API_URL, STRIPE_PUBLIC_KEY, DEFAULT_PLAN_OBJECT } from '../utils.json'
+import Navbar from '../components/Account/Navbar.vue'
+import { API_URL, STRIPE_PUBLIC_KEY, DEFAULT_PLAN_OBJECT } from '../config.json'
 
 // eslint-disable-next-line no-undef
 let stripe = Stripe(STRIPE_PUBLIC_KEY)
@@ -124,15 +125,12 @@ let elements = stripe.elements()
 let card = undefined
 
 export default {
-  beforeCreate() {
-    const user = this.$store.getters.$GetUser
-    if (user.id == undefined || user.stripe == undefined) {
-      this.$message.error('Please, do login to continue')
-      this.$router.push('/login')
-    }
-  },
   created() {
     this.plan = this.$store.getters.$GetChosenPlan
+    if (this.plan == null || this.plan == undefined) {
+      this.$store.dispatch('SetChosenPlan', DEFAULT_PLAN_OBJECT)
+      this.plan = DEFAULT_PLAN_OBJECT
+    }
   },
   mounted() {
     this.formRef = this.$refs.formReference
@@ -161,9 +159,6 @@ export default {
       },
     })
     card.mount(this.$refs.stripeCard)
-    if (this.plan == null || this.plan.name == undefined) {
-      this.plan = DEFAULT_PLAN_OBJECT
-    }
   },
   data() {
     return {
@@ -175,7 +170,7 @@ export default {
       loading: false,
       cardHasError: false,
       error: '',
-      plan: null,
+      plan: undefined,
       rules: {
         name: [
           {

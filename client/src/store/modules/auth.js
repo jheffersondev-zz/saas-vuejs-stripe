@@ -1,4 +1,5 @@
-import { API_URL } from '../../utils.json'
+import jwt_decode from "jwt-decode";
+import { API_URL } from '../../config.json'
 import axios from 'axios'
 
 // flow: actions -> commit -> mutation -> state
@@ -15,12 +16,12 @@ export default {
 
     UpdateLSToken(state, token) {
       state.userToken = token
+      state.user = jwt_decode(token)
       localStorage.setItem('userToken', token)
     },
 
     UpdateUser(state, user) {
       state.user = user
-      console.log("USER CHANGED")
     },
   },
 

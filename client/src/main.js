@@ -10,5 +10,3 @@ app.use(router)
 app.use(Antd)
 app.use(store)
 app.mount('#app')
-
-console.log(app.config)
