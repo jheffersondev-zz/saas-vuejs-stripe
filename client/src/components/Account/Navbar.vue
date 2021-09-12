@@ -3,19 +3,61 @@
     <a-menu
       theme="light"
       mode="horizontal"
+      :selectedKeys="selectedKeys"
     >
-      <router-link :to="{ name: 'Home'}">
+
+      <a-menu-item @click="AccountPage">
+        <a-avatar
+          shape="square"
+          size="medium"
+          :style="{ backgroundColor: '#f0f2f5', color: '#1890ff', verticalAlign: 'middle' }"
+        >
+          {{letter}}
+        </a-avatar>
+
+        <b>
+          &nbsp;{{firstName}}
+        </b>
+
+      </a-menu-item>
+
+      <div
+        class="nav-right"
+        @click="Logout"
+      >
         <a-menu-item key="Home">
           <LogoutOutlined /> Logout
         </a-menu-item>
-      </router-link>
+      </div>
+
     </a-menu>
+
   </a-layout-header>
 </template>
 
 <script >
 import { LogoutOutlined } from '@ant-design/icons-vue'
 export default {
+  mounted() {
+    this.letter = this.$store.getters.$GetUser.name.charAt(0)
+    this.firstName = this.$store.getters.$GetUser.name.split(' ')[0]
+  },
+  data() {
+    return {
+      selectedKeys: ['name'],
+      letter: '',
+      firstName: '',
+    }
+  },
+  methods: {
+    AccountPage() {
+      this.$router.push({ path: '/account' })
+    },
+    Logout() {
+      this.$store.dispatch('Logout')
+      this.$router.push({ path: '/login' })
+    },
+  },
   components: {
     LogoutOutlined,
   },
@@ -27,6 +69,11 @@ export default {
 .header {
   background-color: #fff !important;
   font-family: 'Nunito', sans-serif;
+}
+.header .nav-right {
+  color: #1890ff;
+  position: absolute;
+  right: 0;
 }
 .router-link-active {
   border-bottom: 1px solid;

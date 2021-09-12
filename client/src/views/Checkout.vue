@@ -134,31 +134,15 @@ export default {
   },
   mounted() {
     this.formRef = this.$refs.formReference
-    card = elements.create('card', {
-      hidePostalCode: true,
-      style: {
-        base: {
-          iconColor: '#1890ff',
-          border: '1px solid #c3c3c3 !important',
-          color: '#888888',
-          fontWeight: '400',
-          fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
-          fontSize: '14px',
-          fontSmoothing: 'antialiased',
-          ':-webkit-autofill': {
-            color: '#fce883',
-          },
-          '::placeholder': {
-            color: '#c3c3c3',
-          },
-        },
-        invalid: {
-          iconColor: '#FFC7EE',
-          color: '#FFC7EE',
-        },
-      },
+
+    this.$nextTick(async () => {
+      try {
+        this.createStripeCard()
+      } catch (e) {
+        card.destroy()
+        this.createStripeCard()
+      }
     })
-    card.mount(this.$refs.stripeCard)
   },
   data() {
     return {
@@ -233,14 +217,21 @@ export default {
                       this.$message.success(
                         'You has been successfully subscribed'
                       )
+                      this.$store.dispatch(
+                        'SubscriptionChange',
+                        res.data.subscription.id
+                      )
                     } else {
                       this.$message.error(res.data.error)
                     }
                     return (this.loading = false)
                   })
                   .catch((error) => {
-                    console.log(error.response)
-                    if (error.response.status == 403) {
+                    console.log(error)
+                    if (
+                      error.response !== undefined &&
+                      error.response.status == 403
+                    ) {
                       // redirect
                       this.$message.error(
                         'Your session has been expired, please do login again'
@@ -248,6 +239,8 @@ export default {
                       setTimeout(() => {
                         this.$router.push('/login')
                       }, 1500)
+                    } else {
+                      this.$message.error(error.message)
                     }
                     return (this.loading = false)
                   })
@@ -257,6 +250,33 @@ export default {
         .catch(() => {
           return (this.loading = false)
         })
+    },
+    createStripeCard() {
+      card = elements.create('card', {
+        hidePostalCode: true,
+        style: {
+          base: {
+            iconColor: '#1890ff',
+            border: '1px solid #c3c3c3 !important',
+            color: '#888888',
+            fontWeight: '400',
+            fontFamily: 'Roboto, Open Sans, Segoe UI, sans-serif',
+            fontSize: '14px',
+            fontSmoothing: 'antialiased',
+            ':-webkit-autofill': {
+              color: '#fce883',
+            },
+            '::placeholder': {
+              color: '#c3c3c3',
+            },
+          },
+          invalid: {
+            iconColor: '#FFC7EE',
+            color: '#FFC7EE',
+          },
+        },
+      })
+      card.mount(this.$refs.stripeCard)
     },
   },
   components: {

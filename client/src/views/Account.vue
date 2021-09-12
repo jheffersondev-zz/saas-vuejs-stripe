@@ -1,9 +1,15 @@
 <template>
-  <router-view></router-view>
+  <Navbar />
+  <router-view :key="$route.fullPath"></router-view>
 </template>
 
 <script>
-export default {}
+import Navbar from '../components/Account/Navbar.vue'
+export default {
+  components: {
+    Navbar,
+  },
+}
 </script>
 
 <style>

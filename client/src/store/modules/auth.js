@@ -10,8 +10,9 @@ export default {
   }),
 
   mutations: {
-    Logout() {
+    CloseSession(state) {
       localStorage.removeItem('userToken')
+      state.user = {}
     },
 
     UpdateLSToken(state, token) {
@@ -23,6 +24,12 @@ export default {
     UpdateUser(state, user) {
       state.user = user
     },
+
+    UpdateSubscription(state, newSubId) {
+      state.user.stripe.stripeSubscriptionId = newSubId
+      console.log("Updated")
+      console.log(state.user.stripe.stripeSubscriptionId)
+    }
   },
 
   actions: {
@@ -33,7 +40,7 @@ export default {
       context.commit('UpdateUser', user)
     },
     Logout(context) {
-      context.commit('Logout')
+      context.commit('CloseSession')
     },
     Login(context, { email, password }) {
       return new Promise((resolve, reject) => {
@@ -52,7 +59,6 @@ export default {
           })
       })
     },
-
     SignUp(context, { name, email, password }) {
       return new Promise((resolve, reject) => {
         axios
@@ -71,6 +77,9 @@ export default {
           })
       })
     },
+    SubscriptionChange(context, newSubId){
+      context.commit("UpdateSubscription", newSubId)
+    }
   },
 
   getters: {

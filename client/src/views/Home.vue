@@ -76,6 +76,9 @@
 <script>
 import Navbar from '../components/Navbar.vue'
 import { CheckCircleOutlined } from '@ant-design/icons-vue'
+import PremiumImage from '@/assets/images/Premium.jpg'
+import MediumImage from '@/assets/images/Medium.jpg'
+import StarterImage from '@/assets/images/Starter.jpg'
 
 export default {
   data() {
@@ -83,8 +86,7 @@ export default {
       plans: [
         {
           id: 'price_1JPf1sGywnxGFLOb48TWkHJL',
-          image:
-            'https://images.squarespace-cdn.com/content/v1/55a057e8e4b0a8ce00fe78f6/1605826162900-RLNQVK2ZGLZUD93FG48S/DSC09261-2.jpg?format=1000w',
+          image: StarterImage,
           name: 'Starter',
           price: 25.0,
           recurrencyDate: 'Monthly',
@@ -92,8 +94,7 @@ export default {
         },
         {
           id: 'price_1JPf1sGywnxGFLObCsUy55tY',
-          image:
-            'https://cdn1.harryanddavid.com/wcsstore/HarryAndDavid/images/catalog/20_32086_30W_01ex.jpg',
+          image: MediumImage,
           name: 'Medium',
           price: 35.0,
           recurrencyDate: 'Monthly',
@@ -101,8 +102,7 @@ export default {
         },
         {
           id: 'price_1JPf1sGywnxGFLObvjVe3rja',
-          image:
-            'http://cdn1.harryanddavid.com/wcsstore/HarryAndDavid/images/feed/std/16_24448_30e_01e_400.jpg',
+          image: PremiumImage,
           name: 'Premium',
           price: 45.0,
           recurrencyDate: 'Monthly',

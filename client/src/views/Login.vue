@@ -128,11 +128,16 @@ export default {
               if (res.data.success === true) {
                 let token = res.data.token
                 let user = res.data.user
+                let subId = user.stripe.stripeSubscriptionId
 
                 this.$store.dispatch('SetUserToken', token.toString())
                 this.$store.dispatch('SetUserDetails', user)
 
-                this.$router.push({ path: '/checkout' })
+                if (subId == undefined || subId == null) {
+                  this.$router.push({ path: '/checkout' })
+                } else {
+                  this.$router.push({ path: '/account' })
+                }
               } else {
                 this.error = res.data.error
               }

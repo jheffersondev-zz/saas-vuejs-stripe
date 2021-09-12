@@ -8,7 +8,7 @@ import Login from '../views/Login.vue'
 import Signup from '../views/Signup.vue'
 
 import Account from '../views/Account.vue'
-import AccountIndex from '../components/Account/Index.vue'
+import AccountHome from '../components/Account/Home.vue'
 import AccountHistory from '../components/Account/History.vue'
 
 const routes = [
@@ -40,7 +40,7 @@ const routes = [
     children: [
       {
         path: '',
-        component: AccountIndex,
+        component: AccountHome,
       },
       {
         path: 'history',
