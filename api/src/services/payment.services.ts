@@ -141,4 +141,69 @@ export default class PaymentServices {
       return { success: false, error: error.message }
     }
   }
+
+  async RetrieveCharges(customer: string, limit: number = 5) {
+    try {
+      const charges = await stripe.charges.list({
+        customer,
+        limit,
+      })
+
+      return {
+        success: true,
+        charges: charges.data,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  async RetrievePaymentMethods(customer: string) {
+    try {
+      const paymentMethods = await stripe.paymentMethods.list({
+        customer,
+        type: 'card',
+      })
+
+      return {
+        success: true,
+        paymentMethods,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  }
+
+  async RetrieveSubscription(userId: string) {
+    try {
+      const user = await userModel.find({ _id: userId }).exec()
+
+      if (user.length === 0) {
+        return {
+          success: false,
+          error: 'Not user found',
+        }
+      }
+      const subscriptionId = user[0].stripe.stripeSubscriptionId
+
+      if (
+        subscriptionId == null ||
+        subscriptionId === undefined ||
+        subscriptionId.length < 1
+      ) {
+        return {
+          success: false,
+          error: 'none subscription found',
+        }
+      }
+
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId)
+      return {
+        success: true,
+        subscription,
+      }
+    } catch (error: any) {
+      return { success: false, error: error.message }
+    }
+  }
 }

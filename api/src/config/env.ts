@@ -8,5 +8,6 @@ export default {
   databaseUrl: process.env.DB_URL,
   stripe: {
     publicKey: process.env.STRIPE_PUBLIC_KEY,
+    webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
   },
 }

@@ -15,7 +15,11 @@ export default (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    jwt.verify(token, env.jwtSecret === undefined ? '' : env.jwtSecret)
+    const decoded = jwt.verify(
+      token,
+      env.jwtSecret === undefined ? '' : env.jwtSecret
+    )
+    res.locals.user = decoded
     return next()
   } catch (err) {
     return res.status(403).json({
